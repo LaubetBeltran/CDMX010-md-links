@@ -6,7 +6,7 @@ const ReadDoc = (doc) => {
 		const docContent = fs.readFileSync(doc, 'utf8');
 		console.log(docContent);
 	} else {
-		console.log('no soy un archivo .md');
+		console.log('no soy un archivo ".md"');
 	}
 }
 
