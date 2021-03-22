@@ -1,14 +1,37 @@
 const fs = require('fs');
+const path = require('path');
+const chalk = require('chalk');
 
-const ReadDoc = (doc) => {
-	const mdDocFilter = doc.endsWith('.md');
-  if (mdDocFilter === true) {
-		const docContent = fs.readFileSync(doc, 'utf8');
-		console.log(docContent);
-	} else {
-		console.log('no soy un archivo ".md"');
+const readDocMd = (doc) => {
+	const docContent = fs.readFileSync(doc, 'utf8');
+	console.log(chalk.magentaBright(docContent));
+}
+
+const readDirectory = (directory) => {
+	fs.readdir(directory, (err, files) => {
+		if (err){
+			return console.log('Error al imprimir los archivos')
+		}	else {
+			console.log(chalk.yellow(files));
+			files.forEach((doc) => {
+				//const newPath = path.normalize(directory + '/' + doc);
+				const newPath = directory + '/' + doc;
+				readArchive(newPath);
+			}); 
+		}
+	});
+}
+
+const readArchive = (archive) => {
+	const extNamePath = path.extname(archive);
+	if (extNamePath === '.md') {
+		console.log(chalk.blue('i am a .md'));
+		readDocMd(archive);
+	} else if (extNamePath === '') {
+		console.log(chalk.cyan('I am a directory'));
+		readDirectory(archive);
 	}
 }
 
-//ReadDoc('README.md');
-ReadDoc('docPrueba.txt');
+//readArchive('./random/ejemplo.md');
+readArchive('./random');
