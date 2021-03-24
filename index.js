@@ -2,30 +2,34 @@ const fs = require('fs');
 const path = require('path');
 const chalk = require('chalk');
 
+const cutLinksEnd = (link) => {
+	const positionParenthesisEnd = link.indexOf(')');
+	const positionSpaces = link.indexOf(' ');
+	let finalLink = '';
+	if (positionParenthesisEnd !== -1) {
+		finalLink = link.slice(0, positionParenthesisEnd);
+	} else if (positionSpaces !== -1) {
+		finalLink = link.slice(0, positionSpaces);
+	} else {
+		finalLink = link;
+	}
+	return finalLink;
+}
+
 
 const searchLinks = (header, compliteHeader, textLine) => {
-	let headerLinks = [];
+	let headerLinksArray = [];
 	const posibleLinksArray = textLine.split(header);
 	posibleLinksArray.forEach(element => {
 		let posibleLink = header + element;
 		let compliteHeaderStart = posibleLink.startsWith(compliteHeader);
 		if (compliteHeaderStart === true) {
-			// console.log(chalk.magentaBright(posibleLink));
-			const positionParenthesisEnd = posibleLink.indexOf(')');
-			const positionSpaces = posibleLink.indexOf(' ');
-			let finalLink = '';
-			if (positionParenthesisEnd !== -1) {
-				finalLink = posibleLink.slice(0, positionParenthesisEnd);
-			} else if (positionSpaces !== -1) {
-				finalLink = posibleLink.slice(0, positionSpaces);
-			} else {
-				finalLink = posibleLink;
-			}
+			const finalLink = cutLinksEnd(posibleLink);
 			console.log(chalk.green(finalLink));
-			headerLinks.push(finalLink);
+			headerLinksArray.push(finalLink);
 		}
 	});
-	return headerLinks;
+	return headerLinksArray;
 }
 
 const getLinks = (docContent)=>{
@@ -61,8 +65,8 @@ const readDirectory = (directory) => {
 		}	else {
 			// console.log(chalk.yellow(files));
 			files.forEach((doc) => {
-				//const newPath = path.normalize(directory + '/' + doc);
-				const newPath = directory + '/' + doc;
+				const newPath = path.normalize(directory + '/' + doc);
+				// const newPath = directory + '/' + doc;
 				readArchive(newPath);
 			}); 
 		}
