@@ -2,6 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const chalk = require('chalk');
 
+
 const searchLinks = (header, compliteHeader, textLine) => {
 	let headerLinks = [];
 	const posibleLinksArray = textLine.split(header);
@@ -9,18 +10,20 @@ const searchLinks = (header, compliteHeader, textLine) => {
 		let posibleLink = header + element;
 		let compliteHeaderStart = posibleLink.startsWith(compliteHeader);
 		if (compliteHeaderStart === true) {
-			console.log(chalk.magentaBright(posibleLink));
+			// console.log(chalk.magentaBright(posibleLink));
 			const positionParenthesisEnd = posibleLink.indexOf(')');
 			const positionSpaces = posibleLink.indexOf(' ');
+			let finalLink = '';
 			if (positionParenthesisEnd !== -1) {
-				const finalLink = posibleLink.slice(0, positionParenthesisEnd);
-				console.log(chalk.cyanBright(finalLink));
-				headerLinks.push(finalLink);
+				finalLink = posibleLink.slice(0, positionParenthesisEnd);
 			} else if (positionSpaces !== -1) {
-				const finalLink = posibleLink.slice(0, positionSpaces);
-				console.log(chalk.cyanBright(finalLink));
-				headerLinks.push(finalLink);
+				finalLink = posibleLink.slice(0, positionSpaces);
+				
+			} else {
+				finalLink = posibleLink;
 			}
+			console.log(chalk.green(finalLink));
+			headerLinks.push(finalLink);
 		}
 	});
 	return headerLinks;
@@ -38,7 +41,8 @@ const getLinks = (docContent)=>{
 			textLineLinks.forEach(arr => allLinks.push(arr));
 		} 
 	});
-	console.log(chalk.yellow(allLinks));
+	// console.log(chalk.yellow(allLinks));
+	console.log('\n')
 }
 
 const readDocMd = (doc) => {
@@ -53,7 +57,7 @@ const readDirectory = (directory) => {
 		if (err) {
 			return console.log(chalk.red.bold('Error al procesar el archivo'));
 		}	else {
-			console.log(chalk.yellow(files));
+			// console.log(chalk.yellow(files));
 			files.forEach((doc) => {
 				//const newPath = path.normalize(directory + '/' + doc);
 				const newPath = directory + '/' + doc;
@@ -63,17 +67,29 @@ const readDirectory = (directory) => {
 	});
 }
 
+const showArchivePath = (pathArchive, pathExt) => {
+	if (pathExt === '') {
+		console.log(chalk.cyan.bold.underline(pathArchive));
+		console.log(chalk.cyan('Accediendo a los archivos Markdown dentro del directorio...' + '\n'));
+	} else if (pathExt == '.md') {
+		console.log(chalk.magentaBright.bold.underline(pathArchive));
+		console.log(chalk.magentaBright('Buscando los links dentro del archivo Markdown...' + '\n'));
+	}
+}
+
 const readArchive = (archive) => {
 	const extNamePath = path.extname(archive);
 	if (extNamePath === '.md') {
-		console.log(chalk.blue('i am a .md'));
+		// console.log(chalk.blue('i am a .md'));
+		showArchivePath(archive, extNamePath);
 		readDocMd(archive);
 	} else if (extNamePath === '') {
-		console.log(chalk.cyan('I am a directory'));
+		// console.log(chalk.cyan('I am a directory'));
+		showArchivePath(archive, extNamePath);
 		readDirectory(archive);
 	}
 }
 
-//readArchive('./random/ejemplo.md');
-readArchive('./README.md');
-//readArchive('./random');
+// readArchive('./random/ejemplo.md');
+// readArchive('./README.md');
+readArchive('./random');

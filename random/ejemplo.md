@@ -1,7 +1,7 @@
 # GirlTechSOS
 Red social de apoyo técnico para estudiantes de Laboratoria.
 <br>
-Conoce nuestra plataforma: https://alejandragarcia1.github.io/CDMX010-social-network/.
+Conoce nuestra plataforma: https://alejandragarcia1.github.io/CDMX010-social-network/ 
 
 
 ![proyecto](/src/images/girltechsos.JPG)
