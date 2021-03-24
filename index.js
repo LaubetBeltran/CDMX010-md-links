@@ -18,7 +18,6 @@ const searchLinks = (header, compliteHeader, textLine) => {
 				finalLink = posibleLink.slice(0, positionParenthesisEnd);
 			} else if (positionSpaces !== -1) {
 				finalLink = posibleLink.slice(0, positionSpaces);
-				
 			} else {
 				finalLink = posibleLink;
 			}
@@ -41,13 +40,16 @@ const getLinks = (docContent)=>{
 			textLineLinks.forEach(arr => allLinks.push(arr));
 		} 
 	});
-	// console.log(chalk.yellow(allLinks));
-	console.log('\n')
+	if(allLinks.length === 0){
+			console.log(chalk.gray('No se encotraron links dentro de este archivo.'));
+	} else{
+			// console.log(chalk.yellow(allLinks));	
+	}
+	console.log('\n');
 }
 
 const readDocMd = (doc) => {
 	const docContent = fs.readFileSync(doc, 'utf8');
-	//console.log(chalk.magentaBright(docContent));
 	getLinks(docContent);
 	
 }
@@ -73,7 +75,7 @@ const showArchivePath = (pathArchive, pathExt) => {
 		console.log(chalk.cyan('Accediendo a los archivos Markdown dentro del directorio...' + '\n'));
 	} else if (pathExt == '.md') {
 		console.log(chalk.magentaBright.bold.underline(pathArchive));
-		console.log(chalk.magentaBright('Buscando los links dentro del archivo Markdown...' + '\n'));
+		console.log(chalk.magentaBright('Buscando los links dentro del archivo Markdown...'));
 	}
 }
 
@@ -93,3 +95,4 @@ const readArchive = (archive) => {
 // readArchive('./random/ejemplo.md');
 // readArchive('./README.md');
 readArchive('./random');
+// readArchive('error');
