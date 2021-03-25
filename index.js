@@ -4,32 +4,13 @@ const chalk = require('chalk');
 
 const cutLinksEnd = (link) => {
 	const positionParenthesisEnd = link.indexOf(')');
-	const positionSpaces = link.indexOf(' ');
 	let finalLink = '';
 	if (positionParenthesisEnd !== -1) {
 		finalLink = link.slice(0, positionParenthesisEnd);
-	} else if (positionSpaces !== -1) {
-		finalLink = link.slice(0, positionSpaces);
 	} else {
 		finalLink = link;
 	}
 	return finalLink;
-}
-
-
-const searchLinks = (header, compliteHeader, textLine) => {
-	let headerLinksArray = [];
-	const posibleLinksArray = textLine.split(header);
-	posibleLinksArray.forEach(element => {
-		let posibleLink = header + element;
-		let compliteHeaderStart = posibleLink.startsWith(compliteHeader);
-		if (compliteHeaderStart === true) {
-			const finalLink = cutLinksEnd(posibleLink);
-			console.log(chalk.green(finalLink));
-			headerLinksArray.push(finalLink);
-		}
-	});
-	return headerLinksArray;
 }
 
 const getLinks = (docContent)=>{
@@ -38,16 +19,22 @@ const getLinks = (docContent)=>{
 	textLineArray.forEach(textLine => {
 		const httpExist = /http/.test(textLine);
 		if (httpExist === true) {
-			const linkhttp = searchLinks('http:', 'http://', textLine);
-			const linkhttps = searchLinks('https:', 'https://', textLine);
-			const textLineLinks = linkhttp.concat(linkhttps);
-			textLineLinks.forEach(arr => allLinks.push(arr));
+			const expression = /(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]+\.[^\s]{2,}|www\.[a-zA-Z0-9]+\.[^\s]{2,})/gi;
+			const regex = new RegExp(expression);
+			const linkMatch = textLine.match(regex);
+			if (linkMatch) {
+				linkMatch.forEach(link =>{
+					const finalLink = cutLinksEnd(link);
+					console.log(chalk.green(finalLink)); //, chalk.blue(typeof(finalLink)));
+					allLinks.push(finalLink);
+				});
+			}
 		} 
 	});
 	if(allLinks.length === 0){
-			console.log(chalk.gray('No se encotraron links dentro de este archivo.'));
+		console.log(chalk.gray('No se encotraron links dentro de este archivo.'));
 	} else{
-			// console.log(chalk.yellow(allLinks));	
+		// console.log(chalk.yellow(allLinks));	
 	}
 	console.log('\n');
 }
@@ -63,10 +50,8 @@ const readDirectory = (directory) => {
 		if (err) {
 			return console.log(chalk.red.bold('Error al procesar el archivo'));
 		}	else {
-			// console.log(chalk.yellow(files));
 			files.forEach((doc) => {
 				const newPath = path.normalize(directory + '/' + doc);
-				// const newPath = directory + '/' + doc;
 				readArchive(newPath);
 			}); 
 		}
@@ -86,11 +71,11 @@ const showArchivePath = (pathArchive, pathExt) => {
 const readArchive = (archive) => {
 	const extNamePath = path.extname(archive);
 	if (extNamePath === '.md') {
-		// console.log(chalk.blue('i am a .md'));
+		console.log(chalk.blue('I am a .md'));
 		showArchivePath(archive, extNamePath);
 		readDocMd(archive);
 	} else if (extNamePath === '') {
-		// console.log(chalk.cyan('I am a directory'));
+		console.log(chalk.cyan('I am a directory'));
 		showArchivePath(archive, extNamePath);
 		readDirectory(archive);
 	}
