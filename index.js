@@ -19,22 +19,24 @@ const printLinksAndStatus = (link, status) =>{
 }
 
 const checkStatus= (res) => {
-	if (res.ok) {
-			const linkStatus = res.status;
-			printLinksAndStatus(res.url, linkStatus);
-	} else {
-		console.log('error');
-	}
+	// if (res.ok) {
+	// 	console.log(chalk.green(res.url), chalk.blue(res.status));
+	// } else {
+	// 	console.log(chalk.red(res.url, res.status));
+	// }
+	return res
 }
 
 const getLinkStatus = (link) => {
-	const fetchPromise = fetch(link);
-	fetchPromise.then(checkStatus)
-	.catch(console.log(chalk.red(link)))
-	}
+	return fetch(link)
+	.then(checkStatus)
+	.catch((error) => {
+		console.log(chalk.red('Status error', error))})
+}
 
 const getLinks = (docContent)=>{
-	const textLineArray = docContent.split('\n');
+	return new Promise((resolve, reject) => {
+		const textLineArray = docContent.split('\n');
 	let allLinks = [];
 	textLineArray.forEach(textLine => {
 		const httpExist = /http/.test(textLine);
@@ -46,26 +48,29 @@ const getLinks = (docContent)=>{
 				linkMatch.forEach(link =>{
 					const finalLink = cutLinksEnd(link);
 					allLinks.push(finalLink);
-					console.log(chalk.green(finalLink));
-					//printLinksAndStatus(finalLink);
 					getLinkStatus(finalLink);
 				});
 			}
 		} 
 	});
-
 	if(allLinks.length === 0){
 		console.log(chalk.gray('No se encotraron links dentro de este archivo.'));
 	} else{
-		// console.log(chalk.yellow(allLinks));	
+		resolve(allLinks);
 	}
 	console.log('\n');
+	})
+	
 }
 
 const readDocMd = (doc) => {
 	const docContent = fs.readFileSync(doc, 'utf8');
-	getLinks(docContent);
-	
+	getLinks(docContent)
+		.then((allLinks) => {
+			const promises = allLinks.map(getLinkStatus)
+			return Promise.all(promises);
+		})
+		.then(result => console.log(result)) // [200, 200, 200, ...]
 }
 
 const readDirectory = (directory) => {
@@ -94,7 +99,7 @@ const showArchivePath = (pathArchive, pathExt) => {
 	}
 }
 
-const readArchive = (archive) => {
+const readArchive = async (archive) => {
 	const extNamePath = path.extname(archive);
 	showArchivePath(archive, extNamePath);
 	if (extNamePath === '.md') {
