@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const chalk = require('chalk');
+const fetch = require('node-fetch');
 
 const cutLinksEnd = (link) => {
 	const positionParenthesisEnd = link.indexOf(')');
@@ -12,6 +13,25 @@ const cutLinksEnd = (link) => {
 	}
 	return finalLink;
 }
+
+const printLinksAndStatus = (link, status) =>{
+	console.log(chalk.green(link), chalk.blue(status));
+}
+
+const checkStatus= (res) => {
+	if (res.ok) {
+			const linkStatus = res.status;
+			printLinksAndStatus(res.url, linkStatus);
+	} else {
+		console.log('error');
+	}
+}
+
+const getLinkStatus = (link) => {
+	const fetchPromise = fetch(link);
+	fetchPromise.then(checkStatus)
+	.catch(console.log(chalk.red(link)))
+	}
 
 const getLinks = (docContent)=>{
 	const textLineArray = docContent.split('\n');
@@ -25,12 +45,15 @@ const getLinks = (docContent)=>{
 			if (linkMatch) {
 				linkMatch.forEach(link =>{
 					const finalLink = cutLinksEnd(link);
-					console.log(chalk.green(finalLink)); //, chalk.blue(typeof(finalLink)));
 					allLinks.push(finalLink);
+					console.log(chalk.green(finalLink));
+					//printLinksAndStatus(finalLink);
+					getLinkStatus(finalLink);
 				});
 			}
 		} 
 	});
+
 	if(allLinks.length === 0){
 		console.log(chalk.gray('No se encotraron links dentro de este archivo.'));
 	} else{
@@ -60,23 +83,23 @@ const readDirectory = (directory) => {
 
 const showArchivePath = (pathArchive, pathExt) => {
 	if (pathExt === '') {
-		console.log(chalk.cyan.bold.underline(pathArchive));
-		console.log(chalk.cyan('Accediendo a los archivos Markdown dentro del directorio...' + '\n'));
+		console.log(chalk.blue.bold.underline(pathArchive));
+		console.log(chalk.blue('Accediendo a los archivos Markdown dentro del directorio...' + '\n'));
 	} else if (pathExt == '.md') {
 		console.log(chalk.magentaBright.bold.underline(pathArchive));
 		console.log(chalk.magentaBright('Buscando los links dentro del archivo Markdown...'));
+	} else {
+		console.log(chalk.gray.bold.underline(pathArchive));
+		console.log(chalk.gray('No es un archivo Marckdown' + '\n'));
 	}
 }
 
 const readArchive = (archive) => {
 	const extNamePath = path.extname(archive);
+	showArchivePath(archive, extNamePath);
 	if (extNamePath === '.md') {
-		console.log(chalk.blue('I am a .md'));
-		showArchivePath(archive, extNamePath);
 		readDocMd(archive);
 	} else if (extNamePath === '') {
-		console.log(chalk.cyan('I am a directory'));
-		showArchivePath(archive, extNamePath);
 		readDirectory(archive);
 	}
 }
@@ -84,4 +107,5 @@ const readArchive = (archive) => {
 // readArchive('./random/ejemplo.md');
 // readArchive('./README.md');
 readArchive('./random');
+
 // readArchive('error');
