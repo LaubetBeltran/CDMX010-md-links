@@ -106,6 +106,17 @@ const readArchive = (archive) => {
 
 // readArchive('./random/ejemplo.md');
 // readArchive('./README.md');
-readArchive('./random');
+// readArchive('./random');
 
 // readArchive('error');
+
+const getInput = (p) => {
+	var index = process.argv.indexOf(p);
+	return process.argv[index + 1];
+}
+
+const initMdLinks= () => {
+var inputDoc = getInput('--path');
+readArchive(inputDoc);
+}
+initMdLinks();
