@@ -14,14 +14,37 @@ const cutLinksEnd = (link) => {
 	return finalLink;
 }
 
+function myExcepionErr(mensaje) {
+	console.log(mensaje);
+}
+
+function checkStatus(res) {
+	if (res.ok) { 
+		return console.log(chalk.green(res.url), chalk.yellow(res.status, res.statusText));
+	} else {
+		if (res.status){
+			return console.log(chalk.red(res.url), chalk.yellow(res.status, res.statusText));
+		} else {
+			return console.log('Status error', res.code);
+		}
+		
+	}
+}
+
 const getLinkStatus = (link) => {
 	return fetch(link)
-	.then((res) => { return res})
-	.catch((error) => {
-		console.log(chalk.red(error));
-		return error;
-	})
+    .then((res) => {return res })
+		.catch((error) => {return error;})//return console.log(link, error.code)})
 }
+
+// const getLinkStatus = (link) => {
+// 	return fetch(link)
+// 	.then((res) => { return res})
+// 	.catch((error) => {
+// 		console.log(chalk.red(error));
+// 		return error;
+// 	})
+// }
 
 const getLinks = (docContent, docPath)=>{
 	return new Promise((resolve, reject) => {
@@ -61,14 +84,19 @@ const readDocMd = (doc) => {
 		.then((result) =>{
 			showArchivePath(doc);
 			result.forEach((infoLink) => {
-				// console.log(chalk.green(infoLink.url), chalk.blue(infoLink.status));
-				if (infoLink.status === 200) {
-				console.log(chalk.green(infoLink.url), chalk.blue(infoLink.status));
-				} else {
-				console.log(chalk.red(infoLink.url, infoLink.status));
-				}
-			});
-			console.log('\n');
+				checkStatus(infoLink);
+				
+		})
+		console.log('\n');
+			// result.forEach((infoLink) => {
+			// 	// console.log(chalk.green(infoLink.url), chalk.blue(infoLink.status));
+			// 	if (infoLink.status === 200) {
+			// 	console.log(chalk.green(infoLink.url), chalk.blue(infoLink.status));
+			// 	} else {
+			// 	console.log(chalk.red(infoLink.url, infoLink.status));
+			// 	}
+			// });
+			// console.log('\n');
 		})
 		.catch((error) => {
 			console.log(chalk.red(error))})
