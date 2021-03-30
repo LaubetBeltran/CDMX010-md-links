@@ -14,42 +14,28 @@ const cutLinksEnd = (link) => {
 	return finalLink;
 }
 
-function myExcepionErr(mensaje) {
-	console.log(mensaje);
-}
-
-function checkStatus(res) {
-	if (res.ok) { 
-		return console.log(chalk.green(res.url), chalk.yellow(res.status, res.statusText));
+function showLinkStatus(res) {
+	if (res.statusText === 'OK') { 
+		console.log(chalk.green(res.url), chalk.yellow(res.status, res.statusText));
 	} else {
-		if (res.status){
-			return console.log(chalk.red(res.url), chalk.yellow(res.status, res.statusText));
-		} else {
-			return console.log('Status error', res.code);
-		}
-		
+		console.log(chalk.red(res.url), chalk.yellow(res.status, res.statusText));
 	}
 }
 
 const getLinkStatus = (link) => {
 	return fetch(link)
-    .then((res) => {return res })
-		.catch((error) => {return error;})//return console.log(link, error.code)})
+    .then((res) => {
+			return res.ok ? {status: res.status, statusText: 'OK', url:link} : {status: res.status, statusText: 'FAIL', url:link}
+		})
+		.catch(() => {
+			return { status: 500, statusText: 'FAIL', url: link}
+		})
 }
-
-// const getLinkStatus = (link) => {
-// 	return fetch(link)
-// 	.then((res) => { return res})
-// 	.catch((error) => {
-// 		console.log(chalk.red(error));
-// 		return error;
-// 	})
-// }
 
 const getLinks = (docContent, docPath)=>{
 	return new Promise((resolve, reject) => {
 		const textLineArray = docContent.split('\n');
-		let allLinks = [];
+		let allLinksArray = [];
 		textLineArray.forEach(textLine => {
 			const httpExist = /http/.test(textLine);
 			if (httpExist === true) {
@@ -59,17 +45,16 @@ const getLinks = (docContent, docPath)=>{
 				if (linkMatch) {
 					linkMatch.forEach(link =>{
 						const finalLink = cutLinksEnd(link);
-						allLinks.push(finalLink);
-						getLinkStatus(finalLink);
+						allLinksArray.push(finalLink);
 					});
 				}
 			} 
 		});
-		if(allLinks.length === 0){
+		if(allLinksArray.length === 0){
 			showArchivePath(docPath)
 			console.log(chalk.gray('No se encotraron links dentro de este archivo.'), '\n');
 		} else {
-			resolve(allLinks);
+			resolve(allLinksArray);
 		}
 	});
 }
@@ -77,29 +62,15 @@ const getLinks = (docContent, docPath)=>{
 const readDocMd = (doc) => {
 	const docContent = fs.readFileSync(doc, 'utf8');
 	getLinks(docContent, doc)
-		.then((allLinks) => {
-			const promises = allLinks.map(getLinkStatus);
+		.then((allLinksArray) => {
+			const promises = allLinksArray.map(getLinkStatus);
 			return Promise.all(promises);
 		})
-		.then((result) =>{
+		.then((result) => {
 			showArchivePath(doc);
-			result.forEach((infoLink) => {
-				checkStatus(infoLink);
-				
+			result.forEach((infoLink) => showLinkStatus(infoLink));
 		})
-		console.log('\n');
-			// result.forEach((infoLink) => {
-			// 	// console.log(chalk.green(infoLink.url), chalk.blue(infoLink.status));
-			// 	if (infoLink.status === 200) {
-			// 	console.log(chalk.green(infoLink.url), chalk.blue(infoLink.status));
-			// 	} else {
-			// 	console.log(chalk.red(infoLink.url, infoLink.status));
-			// 	}
-			// });
-			// console.log('\n');
-		})
-		.catch((error) => {
-			console.log(chalk.red(error))})
+		.catch((error) => console.log(chalk.red(error)))
 }
 
 const readDirectory = (directory) => {
