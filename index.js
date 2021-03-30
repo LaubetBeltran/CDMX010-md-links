@@ -14,63 +14,64 @@ const cutLinksEnd = (link) => {
 	return finalLink;
 }
 
-const printLinksAndStatus = (link, status) =>{
-	console.log(chalk.green(link), chalk.blue(status));
-}
-
-const checkStatus= (res) => {
-	// if (res.ok) {
-	// 	console.log(chalk.green(res.url), chalk.blue(res.status));
-	// } else {
-	// 	console.log(chalk.red(res.url, res.status));
-	// }
-	return res
-}
-
 const getLinkStatus = (link) => {
 	return fetch(link)
-	.then(checkStatus)
+	.then((res) => { return res})
 	.catch((error) => {
-		console.log(chalk.red('Status error', error))})
+		console.log(chalk.red(error));
+		return error;
+	})
 }
 
-const getLinks = (docContent)=>{
+const getLinks = (docContent, docPath)=>{
 	return new Promise((resolve, reject) => {
 		const textLineArray = docContent.split('\n');
-	let allLinks = [];
-	textLineArray.forEach(textLine => {
-		const httpExist = /http/.test(textLine);
-		if (httpExist === true) {
-			const expression = /(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]+\.[^\s]{2,}|www\.[a-zA-Z0-9]+\.[^\s]{2,})/gi;
-			const regex = new RegExp(expression);
-			const linkMatch = textLine.match(regex);
-			if (linkMatch) {
-				linkMatch.forEach(link =>{
-					const finalLink = cutLinksEnd(link);
-					allLinks.push(finalLink);
-					getLinkStatus(finalLink);
-				});
-			}
-		} 
+		let allLinks = [];
+		textLineArray.forEach(textLine => {
+			const httpExist = /http/.test(textLine);
+			if (httpExist === true) {
+				const expression = /(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]+\.[^\s]{2,}|www\.[a-zA-Z0-9]+\.[^\s]{2,})/gi;
+				const regex = new RegExp(expression);
+				const linkMatch = textLine.match(regex);
+				if (linkMatch) {
+					linkMatch.forEach(link =>{
+						const finalLink = cutLinksEnd(link);
+						allLinks.push(finalLink);
+						getLinkStatus(finalLink);
+					});
+				}
+			} 
+		});
+		if(allLinks.length === 0){
+			showArchivePath(docPath)
+			console.log(chalk.gray('No se encotraron links dentro de este archivo.'), '\n');
+		} else {
+			resolve(allLinks);
+		}
 	});
-	if(allLinks.length === 0){
-		console.log(chalk.gray('No se encotraron links dentro de este archivo.'));
-	} else{
-		resolve(allLinks);
-	}
-	console.log('\n');
-	})
-	
 }
 
 const readDocMd = (doc) => {
 	const docContent = fs.readFileSync(doc, 'utf8');
-	getLinks(docContent)
+	getLinks(docContent, doc)
 		.then((allLinks) => {
-			const promises = allLinks.map(getLinkStatus)
+			const promises = allLinks.map(getLinkStatus);
 			return Promise.all(promises);
 		})
-		.then(result => console.log(result)) // [200, 200, 200, ...]
+		.then((result) =>{
+			showArchivePath(doc);
+			result.forEach((infoLink) => {
+				// console.log(chalk.green(infoLink.url), chalk.blue(infoLink.status));
+				if (infoLink.status === 200) {
+				console.log(chalk.green(infoLink.url), chalk.blue(infoLink.status));
+				} else {
+				console.log(chalk.red(infoLink.url, infoLink.status));
+				}
+			});
+			console.log('\n');
+		})
+		.catch((error) => {
+			console.log(chalk.red(error))})
 }
 
 const readDirectory = (directory) => {
@@ -86,7 +87,8 @@ const readDirectory = (directory) => {
 	});
 }
 
-const showArchivePath = (pathArchive, pathExt) => {
+const showArchivePath = (pathArchive) => {
+	const pathExt = path.extname(pathArchive);
 	if (pathExt === '') {
 		console.log(chalk.blue.bold.underline(pathArchive));
 		console.log(chalk.blue('Accediendo a los archivos Markdown dentro del directorio...' + '\n'));
@@ -99,20 +101,19 @@ const showArchivePath = (pathArchive, pathExt) => {
 	}
 }
 
-const readArchive = async (archive) => {
+const readArchive = (archive) => {
 	const extNamePath = path.extname(archive);
-	showArchivePath(archive, extNamePath);
 	if (extNamePath === '.md') {
 		readDocMd(archive);
 	} else if (extNamePath === '') {
+		showArchivePath(archive);
 		readDirectory(archive);
 	}
 }
 
 // readArchive('./random/ejemplo.md');
-// readArchive('./README.md');
-// readArchive('./random');
-
+//readArchive('./README.md');
+//readArchive('./random');
 // readArchive('error');
 
 const getInput = (p) => {
