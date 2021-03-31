@@ -5,16 +5,11 @@ const fetch = require('node-fetch');
 
 const cutLinksEnd = (link) => {
 	const positionParenthesisEnd = link.indexOf(')');
-	let finalLink = '';
-	if (positionParenthesisEnd !== -1) {
-		finalLink = link.slice(0, positionParenthesisEnd);
-	} else {
-		finalLink = link;
-	}
+	let finalLink = (positionParenthesisEnd !== -1) ? (link.slice(0, positionParenthesisEnd)) : (link);
 	return finalLink;
 }
 
-function showLinkStatus(res) {
+const showLinkStatus = (res) => {
 	if (res.statusText === 'OK') { 
 		console.log(chalk.green(res.url), chalk.yellow(res.status, res.statusText));
 	} else {
@@ -72,11 +67,11 @@ const readDocMd = (doc) => {
 			console.log('\n');
 			return result
 		})
-		.then((result)=> linksStadistic(result))
+		.then((result)=> linksStadistics(result))
 		.catch((error) => console.log(chalk.red(error)))
 }
 
-const linksStadistic = (infoLinksArray) => {
+const linksStadistics = (infoLinksArray) => {
 	let linksStatusOk = infoLinksArray.filter(infoLink => infoLink.statusText === 'OK')
 	let linksStausFail = infoLinksArray.filter(infoLink => infoLink.statusText === 'FAIL')
 	let uniqueLinks = getUniqueLinks(infoLinksArray);
