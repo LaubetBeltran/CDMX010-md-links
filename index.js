@@ -69,8 +69,27 @@ const readDocMd = (doc) => {
 		.then((result) => {
 			showArchivePath(doc);
 			result.forEach((infoLink) => showLinkStatus(infoLink));
+			console.log('\n');
+			return result
 		})
+		.then((result)=> linksStadistic(result))
 		.catch((error) => console.log(chalk.red(error)))
+}
+
+const linksStadistic = (infoLinksArray) => {
+	let linksStatusOk = infoLinksArray.filter(infoLink => infoLink.statusText === 'OK')
+	let linksStausFail = infoLinksArray.filter(infoLink => infoLink.statusText === 'FAIL')
+	let uniqueLinks = getUniqueLinks(infoLinksArray);
+	console.log('TOTAL:', infoLinksArray.length);
+	console.log('UNIQUE:', uniqueLinks.length);
+	console.log('AVAILABLE:', chalk.green.bold(linksStatusOk.length));
+	console.log('BROKEN:', chalk.redBright.bold(linksStausFail.length), '\n');
+}
+
+const getUniqueLinks = (infoLinksArray) => {
+	let allLinks = infoLinksArray.map((infoLink) => {return infoLink.url});
+	let uniqueLinks = allLinks.filter((item, index)=> allLinks.indexOf(item) === index);
+	return uniqueLinks;
 }
 
 const readDirectory = (directory) => {
