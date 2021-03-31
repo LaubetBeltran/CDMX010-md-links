@@ -116,12 +116,18 @@ const showArchivePath = (pathArchive) => {
 
 const readArchive = (archive) => {
 	const extNamePath = path.extname(archive);
-	if (extNamePath === '.md') {
-		readDocMd(archive);
-	} else if (extNamePath === '') {
-		showArchivePath(archive);
-		readDirectory(archive);
-	}
+	fs.lstat(archive, (err, stats) => {
+    if (err) {
+			return console.log(err);
+		} else {
+			if (stats.isFile()){
+			(extNamePath === '.md') ? (readDocMd(archive)) :(showArchivePath(archive))
+			}  else if (stats.isDirectory()) {
+				showArchivePath(archive);
+				readDirectory(archive);
+			}
+		}
+});
 }
 
 // readArchive('./random/ejemplo.md');
