@@ -54,6 +54,22 @@ const getLinks = (docContent, docPath)=>{
 	});
 }
 
+const getUniqueLinks = (infoLinksArray) => {
+	let allLinks = infoLinksArray.map((infoLink) => {return infoLink.url});
+	let uniqueLinks = allLinks.filter((item, index)=> allLinks.indexOf(item) === index);
+	return uniqueLinks;
+}
+
+const linksStadistics = (infoLinksArray) => {
+	let linksStatusOk = infoLinksArray.filter(infoLink => infoLink.statusText === 'OK')
+	let linksStausFail = infoLinksArray.filter(infoLink => infoLink.statusText === 'FAIL')
+	let uniqueLinks = getUniqueLinks(infoLinksArray);
+	console.log('TOTAL:', infoLinksArray.length);
+	console.log('UNIQUE:', uniqueLinks.length);
+	console.log('AVAILABLE:', chalk.green.bold(linksStatusOk.length));
+	console.log('BROKEN:', chalk.redBright.bold(linksStausFail.length), '\n');
+}
+
 const readDocMd = (doc) => {
 	const docContent = fs.readFileSync(doc, 'utf8');
 	getLinks(docContent, doc)
@@ -69,22 +85,6 @@ const readDocMd = (doc) => {
 		})
 		.then((result)=> linksStadistics(result))
 		.catch((error) => console.log(chalk.red(error)))
-}
-
-const linksStadistics = (infoLinksArray) => {
-	let linksStatusOk = infoLinksArray.filter(infoLink => infoLink.statusText === 'OK')
-	let linksStausFail = infoLinksArray.filter(infoLink => infoLink.statusText === 'FAIL')
-	let uniqueLinks = getUniqueLinks(infoLinksArray);
-	console.log('TOTAL:', infoLinksArray.length);
-	console.log('UNIQUE:', uniqueLinks.length);
-	console.log('AVAILABLE:', chalk.green.bold(linksStatusOk.length));
-	console.log('BROKEN:', chalk.redBright.bold(linksStausFail.length), '\n');
-}
-
-const getUniqueLinks = (infoLinksArray) => {
-	let allLinks = infoLinksArray.map((infoLink) => {return infoLink.url});
-	let uniqueLinks = allLinks.filter((item, index)=> allLinks.indexOf(item) === index);
-	return uniqueLinks;
 }
 
 const readDirectory = (directory) => {
