@@ -135,13 +135,15 @@ const readArchive = (archive) => {
 //readArchive('./random');
 // readArchive('error');
 
-const getInput = (p) => {
+const getInput = (p, displacementNum) => {
 	var index = process.argv.indexOf(p);
-	return process.argv[index + 1];
+	console.log(index)
+	return process.argv[index + displacementNum];
 }
 
 const initMdLinks= () => {
-var inputDoc = getInput('--path');
+var inputDoc = getInput('index.js', 3);
+//console.log(inputDoc)
 readArchive(inputDoc);
 }
 initMdLinks();
