@@ -60,17 +60,20 @@ const getUniqueLinks = (infoLinksArray) => {
 	return uniqueLinks;
 }
 
-const linksStadistics = (infoLinksArray) => {
-	let linksStatusOk = infoLinksArray.filter(infoLink => infoLink.statusText === 'OK')
-	let linksStausFail = infoLinksArray.filter(infoLink => infoLink.statusText === 'FAIL')
+const linksStadistics = (infoLinksArray, validation) => {
 	let uniqueLinks = getUniqueLinks(infoLinksArray);
 	console.log('TOTAL:', infoLinksArray.length);
 	console.log('UNIQUE:', uniqueLinks.length);
-	console.log('AVAILABLE:', chalk.green.bold(linksStatusOk.length));
-	console.log('BROKEN:', chalk.redBright.bold(linksStausFail.length), '\n');
+	if (validation === true) {
+		let linksStatusOk = infoLinksArray.filter(infoLink => infoLink.statusText === 'OK');
+		let linksStausFail = infoLinksArray.filter(infoLink => infoLink.statusText === 'FAIL');
+		console.log('AVAILABLE:', chalk.green.bold(linksStatusOk.length));
+		console.log('BROKEN:', chalk.redBright.bold(linksStausFail.length));
+	}
+	console.log( '\n');
 }
 
-const readDocMd = (doc) => {
+const readDocMd = (doc, validation, stats) => {
 	const docContent = fs.readFileSync(doc, 'utf8');
 	getLinks(docContent, doc)
 		.then((allLinksArray) => {
@@ -79,22 +82,26 @@ const readDocMd = (doc) => {
 		})
 		.then((result) => {
 			showArchivePath(doc);
-			result.forEach((infoLink) => showLinkStatus(infoLink));
+			if (validation === true) {
+				result.forEach((infoLink) => showLinkStatus(infoLink));
+			} else {
+				result.forEach((infoLink) => console.log(infoLink.url));	
+			}
 			console.log('\n');
 			return result
 		})
-		.then((result)=> linksStadistics(result))
+		.then((result)=> stats === true ? linksStadistics(result, validation) : '')
 		.catch((error) => console.log(chalk.red(error)))
 }
 
-const readDirectory = (directory) => {
+const readDirectory = (directory, validation, stadistics) => {
 	fs.readdir(directory, (err, files) => {
 		if (err) {
 			return console.log(chalk.red.bold('Error al procesar el archivo'));
 		}	else {
 			files.forEach((doc) => {
 				const newPath = path.normalize(directory + '/' + doc);
-				readArchive(newPath);
+				readArchive(newPath, validation, stadistics);
 			}); 
 		}
 	});
@@ -114,36 +121,38 @@ const showArchivePath = (pathArchive) => {
 	}
 }
 
-const readArchive = (archive) => {
+const readArchive = (archive, validation, stadistics) => {
 	const extNamePath = path.extname(archive);
 	fs.lstat(archive, (err, stats) => {
     if (err) {
 			return console.log(err);
 		} else {
 			if (stats.isFile()){
-			(extNamePath === '.md') ? (readDocMd(archive)) :(showArchivePath(archive))
+			(extNamePath === '.md') ? (readDocMd(archive, validation, stadistics)) :(showArchivePath(archive))
 			}  else if (stats.isDirectory()) {
 				showArchivePath(archive);
-				readDirectory(archive);
+				readDirectory(archive, validation, stadistics);
 			}
 		}
 });
 }
 
-// readArchive('./random/ejemplo.md');
-//readArchive('./README.md');
-//readArchive('./random');
-// readArchive('error');
-
-const getInput = (p, displacementNum) => {
-	var index = process.argv.indexOf(p);
-	console.log(index)
+const getInputPath = (p, displacementNum) => {
+	const index = process.argv.indexOf(p);
 	return process.argv[index + displacementNum];
 }
 
+const getOptions = (option) => {
+	const index = process.argv.indexOf(option);
+	let optioinBoolean = false;
+	index !== -1 ? optioinBoolean = true : optioinBoolean;
+	return optioinBoolean;
+}
+
 const initMdLinks= () => {
-var inputDoc = getInput('index.js', 3);
-//console.log(inputDoc)
-readArchive(inputDoc);
+const inputDoc = getInputPath('index.js', 3);
+const validation = getOptions('--validate');
+const stadistics = getOptions('--stats');
+readArchive(inputDoc, validation, stadistics);
 }
 initMdLinks();
