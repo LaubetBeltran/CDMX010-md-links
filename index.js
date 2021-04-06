@@ -73,6 +73,13 @@ const linksStadistics = (infoLinksArray, validation) => {
 	console.log( '\n');
 }
 
+const showLinks = (result, validation, doc) => {
+	showArchivePath(doc);
+	result.forEach((infoLink) => validation === true ?  showLinkStatus(infoLink) : console.log(infoLink.url));
+	console.log('\n');
+	return result;
+}
+
 const readDocMd = (doc, validation, stats) => {
 	const docContent = fs.readFileSync(doc, 'utf8');
 	getLinks(docContent, doc)
@@ -80,16 +87,7 @@ const readDocMd = (doc, validation, stats) => {
 			const promises = allLinksArray.map(getLinkStatus);
 			return Promise.all(promises);
 		})
-		.then((result) => {
-			showArchivePath(doc);
-			if (validation === true) {
-				result.forEach((infoLink) => showLinkStatus(infoLink));
-			} else {
-				result.forEach((infoLink) => console.log(infoLink.url));	
-			}
-			console.log('\n');
-			return result
-		})
+		.then((result) => showLinks(result, validation, doc))
 		.then((result)=> stats === true ? linksStadistics(result, validation) : '')
 		.catch((error) => console.log(chalk.red(error)))
 }
@@ -112,7 +110,7 @@ const showArchivePath = (pathArchive) => {
 	if (pathExt === '') {
 		console.log(chalk.blue.bold.underline(pathArchive));
 		console.log(chalk.blue('Accediendo a los archivos Markdown dentro del directorio...' + '\n'));
-	} else if (pathExt == '.md') {
+	} else if (pathExt === '.md') {
 		console.log(chalk.magentaBright.bold.underline(pathArchive));
 		console.log(chalk.magentaBright('Buscando los links dentro del archivo Markdown...'));
 	} else {
@@ -128,7 +126,7 @@ const readArchive = (archive, validation, stadistics) => {
 			return console.log(err);
 		} else {
 			if (stats.isFile()){
-			(extNamePath === '.md') ? (readDocMd(archive, validation, stadistics)) :(showArchivePath(archive))
+			(extNamePath === '.md') ? (readDocMd(archive, validation, stadistics)) :(showArchivePath(archive));
 			}  else if (stats.isDirectory()) {
 				showArchivePath(archive);
 				readDirectory(archive, validation, stadistics);
@@ -155,4 +153,5 @@ const validation = getOptions('--validate');
 const stadistics = getOptions('--stats');
 readArchive(inputDoc, validation, stadistics);
 }
+
 initMdLinks();
