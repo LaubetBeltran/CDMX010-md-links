@@ -1,3 +1,4 @@
+#! /usr/bin/env node
 const fs = require('fs');
 const path = require('path');
 const chalk = require('chalk');
@@ -119,7 +120,8 @@ const showArchivePath = (pathArchive) => {
 	}
 }
 
-const readArchive = (archive, validation, stadistics) => {
+
+module.exports = readArchive = (archive, validation, stadistics) => {
 	const extNamePath = path.extname(archive);
 	fs.lstat(archive, (err, stats) => {
     if (err) {
@@ -134,24 +136,3 @@ const readArchive = (archive, validation, stadistics) => {
 		}
 });
 }
-
-const getInputPath = (p, displacementNum) => {
-	const index = process.argv.indexOf(p);
-	return process.argv[index + displacementNum];
-}
-
-const getOptions = (option) => {
-	const index = process.argv.indexOf(option);
-	let optioinBoolean = false;
-	index !== -1 ? optioinBoolean = true : optioinBoolean;
-	return optioinBoolean;
-}
-
-const initMdLinks= () => {
-const inputDoc = getInputPath('index.js', 3);
-const validation = getOptions('--validate');
-const stadistics = getOptions('--stats');
-readArchive(inputDoc, validation, stadistics);
-}
-
-initMdLinks();

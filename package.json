@@ -6,9 +6,9 @@
   "scripts": {
     "start": "node index.js"
   },
-	"bin": {
-		"md-link": ".node.js"
-	},
+  "bin": {
+    "mdlinks": "cli.js"
+  },
   "dependencies": {
     "chalk": "^4.1.0",
     "node-fetch": "^2.6.1"
