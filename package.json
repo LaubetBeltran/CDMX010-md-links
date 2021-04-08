@@ -7,7 +7,7 @@
     "start": "node index.js"
   },
   "bin": {
-    "mdlinks": "cli.js"
+    "md-links": "cli.js"
   },
   "dependencies": {
     "chalk": "^4.1.0",
