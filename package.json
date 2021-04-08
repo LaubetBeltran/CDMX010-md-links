@@ -1,13 +1,35 @@
 {
-	"name": "md-links",
-	"version": "0.1.0",
-	"description": "Hola mundo",
-	"main": "index.js",
-	"scripts": {
-		"start": "node index.js"
+  "name": "md-links",
+  "version": "0.1.0",
+  "description": "Hola mundo",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+	"bin": {
+		"md-link": ".node.js"
 	},
-	"dependencies": {
-		"chalk": "^4.1.0",
-		"node-fetch": "^2.6.1"
-	}
+  "dependencies": {
+    "chalk": "^4.1.0",
+    "node-fetch": "^2.6.1"
+  },
+  "directories": {
+    "test": "test"
+  },
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/LaubetBeltran/CDMX010-md-links.git"
+  },
+  "keywords": [
+    "md-linmk",
+    "markdown",
+    "js"
+  ],
+  "author": "Laura Beltran",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/LaubetBeltran/CDMX010-md-links/issues"
+  },
+  "homepage": "https://github.com/LaubetBeltran/CDMX010-md-links#readme"
 }
