@@ -2,7 +2,7 @@
   "name": "md-links",
   "version": "0.1.0",
   "description": "Hola mundo",
-  "main": "index.js",
+  "main": "mdLinks.js",
   "scripts": {
     "start": "node index.js",
 		"test": "jest --watch"

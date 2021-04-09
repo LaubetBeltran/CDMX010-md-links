@@ -1,4 +1,3 @@
-#! /usr/bin/env node
 const fs = require('fs');
 const path = require('path');
 const chalk = require('chalk');
@@ -120,19 +119,15 @@ const showArchivePath = (pathArchive) => {
 	}
 }
 
-
-module.exports = readArchive = (archive, validation, stadistics) => {
-	const extNamePath = path.extname(archive);
-	fs.lstat(archive, (err, stats) => {
-    if (err) {
-			return console.log(err);
-		} else {
-			if (stats.isFile()){
-			(extNamePath === '.md') ? (readDocMd(archive, validation, stadistics)) :(showArchivePath(archive));
-			}  else if (stats.isDirectory()) {
-				showArchivePath(archive);
-				readDirectory(archive, validation, stadistics);
-			}
-		}
-});
+module.exports = {
+	'readDirectory': readDirectory,
+	'readDocMd' : readDocMd,
+	'showArchivePath' : showArchivePath,
+	'showLinks': showLinks,
+	'linksStadistics': linksStadistics,
+	'getUniqueLinks': getUniqueLinks,
+	'getLinks': getLinks,
+	'getLinkStatus': getLinkStatus,
+	'showLinkStatus': showLinkStatus,
+	'cutLinksEnd': cutLinksEnd,
 }

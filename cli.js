@@ -1,5 +1,5 @@
 #! /usr/bin/env node
-const readArchive = require('./index.js')
+const mdLinks = require('./mdLinks.js')
 
 const getInputPath = (p, displacementNum) => {
 	const index = process.argv.indexOf(p);
@@ -17,7 +17,7 @@ const initMdLinks= () => {
 const inputDoc = getInputPath('index.js', 3);
 const validation = getOptions('--validate');
 const stadistics = getOptions('--stats');
-readArchive(inputDoc, validation, stadistics);
+mdLinks(inputDoc, validation, stadistics);
 }
 
 initMdLinks();
