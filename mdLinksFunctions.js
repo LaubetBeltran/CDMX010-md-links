@@ -77,7 +77,6 @@ const showLinks = (result, validation, doc) => {
 	showArchivePath(doc);
 	result.forEach((infoLink) => validation === true ?  showLinkStatus(infoLink) : console.log(infoLink.url));
 	console.log('\n');
-	return result;
 }
 
 const readDocMd = (doc, validation, stats) => {
@@ -87,7 +86,9 @@ const readDocMd = (doc, validation, stats) => {
 			const promises = allLinksArray.map(getLinkStatus);
 			return Promise.all(promises);
 		})
-		.then((result) => showLinks(result, validation, doc))
+		.then((result) => 
+		{showLinks(result, validation, doc)
+		return result})
 		.then((result)=> stats === true ? linksStadistics(result, validation) : '')
 		.catch((error) => console.log(chalk.red(error)))
 }
