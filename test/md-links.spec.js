@@ -1,4 +1,5 @@
 const mdLinks = require('../mdLinks.js');
+const { getUniqueLinks } = require('../mdLinksFunctions.js');
 const mdLinksFunctions = require('../mdLinksFunctions.js');
 
 const objectLinkMock200 = {status: 200, statusText: 'OK', url: 'https://nodejs.org/api/modules.html'};
@@ -22,9 +23,15 @@ herramienta usando [Node.js](https://nodejs.org/), que lea y analice archivos
 en formato Markdown, para verificar los links que contengan y reportar
 algunas estadísticas.
 
-![md-links](https://user-images.githubusercontent.com/110297/42118443-b7a5f1f0-7bc8-11e8-96ad-9cc5593715a6.jpg)`;
+![md-links](https://user-images.githubusercontent.com/110297/42118443-b7a5f1f0-7bc8-11e8-96ad-9cc5593715a6.jpg)
+[Blablabla] (http://algo.com/2/3/)
+[Node.js](https://nodejs.org/)`;
 
-const arrayLinksMock = ['https://es.wikipedia.org/wiki/Markdown', 'https://nodejs.org/', 'https://user-images.githubusercontent.com/110297/42118443-b7a5f1f0-7bc8-11e8-96ad-9cc5593715a6.jpg'];
+const arrayLinksMock = ['https://es.wikipedia.org/wiki/Markdown', 'https://nodejs.org/', 'https://user-images.githubusercontent.com/110297/42118443-b7a5f1f0-7bc8-11e8-96ad-9cc5593715a6.jpg', 'http://algo.com/2/3/', 'https://nodejs.org/'];
+const arrayUniqueLinksMock = ['https://es.wikipedia.org/wiki/Markdown', 'https://nodejs.org/', 'https://user-images.githubusercontent.com/110297/42118443-b7a5f1f0-7bc8-11e8-96ad-9cc5593715a6.jpg', 'http://algo.com/2/3/'];
+
+const infoLinksArrayMock = [{status: 200, statusText: 'OK', url: 'https://es.wikipedia.org/wiki/Markdown'}, {status: 200, statusText: 'OK', url: 'https://nodejs.org/'}, {status: 200, statusText: 'OK', url: 'https://user-images.githubusercontent.com/110297/42118443-b7a5f1f0-7bc8-11e8-96ad-9cc5593715a6.jpg'}, {status: 404, statusText: 'FAIL', url: 'http://algo.com/2/3/'}, {status: 200, statusText: 'OK', url: 'https://nodejs.org/'}]
+
 
 describe('mdLinks', () => {
 	it('debería ser una función', () => {
@@ -42,7 +49,7 @@ describe('getLinksStatus', () => {
   });
 	});
 	it('si recibe un link roto, debe regresar un objeto con status 404', () => {
-		return mdLinksFunctions.getLinkStatus('http://algo.com/2/3/').catch(data => {
+		return mdLinksFunctions.getLinkStatus('http://algo.com/2/3/').then(data => {
     expect(data).toStrictEqual(objectLinkMock404);
   });
 	});
@@ -53,14 +60,12 @@ describe('getLinksStatus', () => {
 	});
 });
 
-
-test('getStatus return a object with validation data', () => {
-  return mdLinksFunctions.getLinkStatus('https://nodejs.org/api/modules.html').then(data => {
-    expect(data).toStrictEqual(objectLinkMock200);
-  });
-});
-
-
 test('getLinks regresa un array con los links de un texto md', () => {
   return expect(mdLinksFunctions.getLinks(textMdMock)).resolves.toStrictEqual(arrayLinksMock);
+});
+
+describe('getUniqueLinks', () => {
+	it('getUniqueLinks encuentra los links únicos en un array de objetos con la info de los links obtenidos', () => {
+			expect(mdLinksFunctions.getUniqueLinks(infoLinksArrayMock)).toStrictEqual(arrayUniqueLinksMock);
+	})
 });
