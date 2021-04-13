@@ -5,13 +5,15 @@
   "main": "mdLinks.js",
   "scripts": {
     "start": "node index.js",
-    "test": "jest --watch --coverage"
+    "test": "jest --watch --coverage",
+    "pretest": "eslint ./"
   },
   "bin": {
     "md-links": "cli.js"
   },
   "dependencies": {
     "chalk": "^4.1.0",
+    "eslint-plugin-jest": "^24.3.5",
     "node-fetch": "^2.6.1"
   },
   "directories": {
