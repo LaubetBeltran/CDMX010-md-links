@@ -28,7 +28,7 @@ const getLinkStatus = (link) => {
 }
 
 const getLinks = (docContent, docPath)=>{
-	return new Promise((resolve, reject) => {
+	return new Promise((resolve) => {
 		const textLineArray = docContent.split('\n');
 		let allLinksArray = [];
 		textLineArray.forEach(textLine => {
@@ -93,19 +93,6 @@ const readDocMd = (doc, validation, stats) => {
 		.catch((error) => console.log(chalk.red(error)))
 }
 
-const readDirectory = (directory, validation, stadistics) => {
-	fs.readdir(directory, (err, files) => {
-		if (err) {
-			return console.log(chalk.red.bold('Error al procesar el archivo'));
-		}	else {
-			files.forEach((doc) => {
-				const newPath = path.normalize(directory + '/' + doc);
-				readArchive(newPath, validation, stadistics);
-			}); 
-		}
-	});
-}
-
 const showArchivePath = (pathArchive) => {
 	const pathExt = path.extname(pathArchive);
 	if (pathExt === '') {
@@ -121,7 +108,6 @@ const showArchivePath = (pathArchive) => {
 }
 
 module.exports = {
-	'readDirectory': readDirectory,
 	'readDocMd' : readDocMd,
 	'showArchivePath' : showArchivePath,
 	'showLinks': showLinks,

@@ -1,5 +1,5 @@
 #! /usr/bin/env node
-const mdLinks = require('./mdLinks.js')
+const mdLinks = require('./mdLinks.js');
 
 const getInputPath = (p, displacementNum) => {
 	const index = process.argv.indexOf(p);
@@ -17,7 +17,10 @@ const initMdLinks= () => {
 const inputDoc = getInputPath('index.js', 3);
 const validation = getOptions('--validate');
 const stadistics = getOptions('--stats');
-mdLinks(inputDoc, validation, stadistics);
+
+mdLinks(inputDoc, {validated: validation, stats: stadistics});
 }
+
+
 
 initMdLinks();
