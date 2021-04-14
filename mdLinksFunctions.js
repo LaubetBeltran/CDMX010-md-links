@@ -1,29 +1,20 @@
 const fs = require('fs');
-const path = require('path');
 const chalk = require('chalk');
 const fetch = require('node-fetch');
-
+const showFunctions = require('./showCliFunctions.js');
 const cutLinksEnd = (link) => {
 	const positionParenthesisEnd = link.indexOf(')');
 	let finalLink = (positionParenthesisEnd !== -1) ? (link.slice(0, positionParenthesisEnd)) : (link);
 	return finalLink;
 }
 
-const showLinkStatus = (res) => {
-	if (res.statusText === 'OK') { 
-		console.log(chalk.green(res.url), chalk.yellow(res.status, res.statusText));
-	} else {
-		console.log(chalk.red(res.url), chalk.yellow(res.status, res.statusText));
-	}
-}
-
-const getLinkStatus = (link) => {
+const getLinkStatus = (link, doc) => {
 	return fetch(link)
     .then((res) => {
-			return res.ok ? {status: res.status, statusText: 'OK', url:link} : {status: res.status, statusText: 'FAIL', url:link}
+			return res.ok ? {status: res.status, statusText: 'OK', url:link, file: doc, ok: true} : {status: res.status, statusText: 'FAIL', url:link, file: doc, ok: false};
 		})
 		.catch(() => {
-			return { status: 500, statusText: 'FAIL', url: link}
+			return { status: 500, statusText: 'FAIL', url: link, file: doc, ok: false}
 		})
 }
 
@@ -46,7 +37,7 @@ const getLinks = (docContent, docPath)=>{
 			} 
 		});
 		if(allLinksArray.length === 0){
-			showArchivePath(docPath)
+			showFunctions.showArchivePath(docPath)
 			console.log(chalk.gray('No se encotraron links dentro de este archivo.'), '\n');
 		} else {
 			resolve(allLinksArray);
@@ -73,48 +64,38 @@ const linksStadistics = (infoLinksArray, validation) => {
 	console.log( '\n');
 }
 
-const showLinks = (result, validation, doc) => {
-	showArchivePath(doc);
-	result.forEach((infoLink) => validation === true ?  showLinkStatus(infoLink) : console.log(infoLink.url));
-	console.log('\n');
-}
 
-const readDocMd = (doc, validation, stats) => {
+const readDocMd = (doc, validation) => {
+	return new Promise((resolve, reject) => {
 	const docContent = fs.readFileSync(doc, 'utf8');
 	getLinks(docContent, doc)
 		.then((allLinksArray) => {
-			const promises = allLinksArray.map(getLinkStatus);
-			return Promise.all(promises);
+			if (validation === false) {
+				const linksObjet = allLinksArray.map((link) => {return { href: link, file: doc }});
+				resolve(linksObjet); 
+			} else {
+				const promises = allLinksArray.map((link) => getLinkStatus(link, doc));
+				return Promise.all(promises);
+			}
 		})
-		.then((result) => 
-		{showLinks(result, validation, doc)
-		return result})
-		.then((result)=> stats === true ? linksStadistics(result, validation) : '')
-		.catch((error) => console.log(chalk.red(error)))
+		.then((result) => {
+			if (validation === true) {
+				const validatedLinksObject = result.map((infolink)=> {
+				return { href: infolink.url, file: doc, status:infolink.status, ok: infolink.ok}})
+				resolve(validatedLinksObject)
+			}
+		})
+		.catch((error) => reject(error))
+		})
 }
 
-const showArchivePath = (pathArchive) => {
-	const pathExt = path.extname(pathArchive);
-	if (pathExt === '') {
-		console.log(chalk.blue.bold.underline(pathArchive));
-		console.log(chalk.blue('Accediendo a los archivos Markdown dentro del directorio...' + '\n'));
-	} else if (pathExt === '.md') {
-		console.log(chalk.magentaBright.bold.underline(pathArchive));
-		console.log(chalk.magentaBright('Buscando los links dentro del archivo Markdown...'));
-	} else {
-		console.log(chalk.gray.bold.underline(pathArchive));
-		console.log(chalk.gray('No es un archivo Marckdown' + '\n'));
-	}
-}
+
 
 module.exports = {
 	'readDocMd' : readDocMd,
-	'showArchivePath' : showArchivePath,
-	'showLinks': showLinks,
 	'linksStadistics': linksStadistics,
 	'getUniqueLinks': getUniqueLinks,
 	'getLinks': getLinks,
 	'getLinkStatus': getLinkStatus,
-	'showLinkStatus': showLinkStatus,
 	'cutLinksEnd': cutLinksEnd,
 }
